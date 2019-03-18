@@ -1,0 +1,10 @@
+{
+  "name": "MCControl",
+  "description": "Easily control my minecraft server",
+  "memory": 128,
+  "timeout": 5,
+  "role": "arn:aws:iam::902353888911:role/MCControl_lambda_function",
+  "environment": {},
+  "profile": "britt",
+  "runtime": "golang"
+}
