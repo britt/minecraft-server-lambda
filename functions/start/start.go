@@ -1,13 +1,14 @@
 package main
 
 import (
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-func handler(req interface{}) error {
+func handler(req interface{}) (*events.APIGatewayProxyResponse, error) {
 	svc := ec2.New(session.New())
 	findInput := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
@@ -22,7 +23,7 @@ func handler(req interface{}) error {
 
 	resp, err := svc.DescribeInstances(findInput)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for _, r := range resp.Reservations {
@@ -31,11 +32,13 @@ func handler(req interface{}) error {
 			input.InstanceIds = append(input.InstanceIds, i.InstanceId)
 		}
 		if _, err := svc.StartInstances(input); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return &events.APIGatewayProxyResponse{
+		StatusCode: 200,
+	}, nil
 }
 
 func main() {
