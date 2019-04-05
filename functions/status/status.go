@@ -11,6 +11,8 @@ import (
 )
 
 type instanceState struct {
+	Name  string
+	ID    string
 	State string
 	Type  string
 }
@@ -36,10 +38,18 @@ func handler(req interface{}) (*events.APIGatewayProxyResponse, error) {
 	var states []instanceState
 	for _, r := range resp.Reservations {
 		for _, i := range r.Instances {
-			states = append(states, instanceState{
+			res := instanceState{
+				ID:    *i.InstanceId,
 				State: *i.State.Name,
 				Type:  *i.InstanceType,
-			})
+			}
+			for _, t := range i.Tags {
+				if *t.Key == "Name" {
+					res.Name = *t.Value
+				}
+			}
+
+			states = append(states, res)
 		}
 	}
 
