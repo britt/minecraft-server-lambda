@@ -22,6 +22,10 @@ data "aws_lambda_function" "stop_function" {
   function_name = "${var.apex_function_names["stop"]}"
 }
 
+data "aws_lambda_function" "status_function" {
+  function_name = "${var.apex_function_names["status"]}"
+}
+
 
 resource "aws_iam_policy" "ec2-start-stop" {
   name        = "ec2-start-stop"
@@ -67,6 +71,12 @@ resource "aws_api_gateway_resource" "stop" {
   path_part   = "stop"
 }
 
+resource "aws_api_gateway_resource" "status" {
+  rest_api_id = "${aws_api_gateway_rest_api.mc-control.id}"
+  parent_id   = "${aws_api_gateway_rest_api.mc-control.root_resource_id}"
+  path_part   = "status"
+}
+
 resource "aws_api_gateway_method" "start_method" {
   rest_api_id   = "${aws_api_gateway_rest_api.mc-control.id}"
   resource_id   = "${aws_api_gateway_resource.start.id}"
@@ -78,6 +88,13 @@ resource "aws_api_gateway_method" "stop_method" {
   rest_api_id   = "${aws_api_gateway_rest_api.mc-control.id}"
   resource_id   = "${aws_api_gateway_resource.stop.id}"
   http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "status_method" {
+  rest_api_id   = "${aws_api_gateway_rest_api.mc-control.id}"
+  resource_id   = "${aws_api_gateway_resource.status.id}"
+  http_method   = "GET"
   authorization = "NONE"
 }
 
@@ -101,6 +118,16 @@ resource "aws_api_gateway_integration" "stop_lambda" {
   uri                     = "${data.aws_lambda_function.stop_function.invoke_arn}"
 }
 
+resource "aws_api_gateway_integration" "status_lambda" {
+  rest_api_id = "${aws_api_gateway_rest_api.mc-control.id}"
+  resource_id = "${aws_api_gateway_resource.status.id}"
+  http_method = "${aws_api_gateway_method.status_method.http_method}"
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = "${data.aws_lambda_function.status_function.invoke_arn}"
+}
+
 resource "aws_lambda_permission" "start_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
@@ -116,6 +143,17 @@ resource "aws_lambda_permission" "stop_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = "${var.apex_function_names["stop"]}"
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/* portion grants access from any method on any resource
+  # within the API Gateway "REST API".
+  // source_arn = "${var.apex_function_arns["stop"]}/*/*"
+}
+
+resource "aws_lambda_permission" "status_permission" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = "${var.apex_function_names["status"]}"
   principal     = "apigateway.amazonaws.com"
 
   # The /*/* portion grants access from any method on any resource
