@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -53,8 +52,8 @@ func handler(req interface{}) (*events.APIGatewayProxyResponse, error) {
 
 	return &events.APIGatewayProxyResponse{
 		StatusCode:      200,
-		Body:            base64.StdEncoding.EncodeToString(body),
-		IsBase64Encoded: true,
+		Body:            string(body),
+		IsBase64Encoded: false,
 	}, nil
 }
 
