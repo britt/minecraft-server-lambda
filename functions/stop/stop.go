@@ -38,6 +38,11 @@ func handler(req interface{}) (*events.APIGatewayProxyResponse, error) {
 
 	return &events.APIGatewayProxyResponse{
 		StatusCode: 200,
+		Headers: map[string]string{
+			"Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+			"Access-Control-Allow-Methods": "POST,OPTIONS",
+			"Access-Control-Allow-Origin":  "*",
+		},
 	}, nil
 }
 

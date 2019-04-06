@@ -64,6 +64,11 @@ func handler(req interface{}) (*events.APIGatewayProxyResponse, error) {
 		StatusCode:      200,
 		Body:            string(body),
 		IsBase64Encoded: false,
+		Headers: map[string]string{
+			"Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+			"Access-Control-Allow-Methods": "GET,OPTIONS",
+			"Access-Control-Allow-Origin":  "*",
+		},
 	}, nil
 }
 
