@@ -1,0 +1,2 @@
+// replace with the URL of your API gateway and rename the file to url.js
+export default 'https://mygateway.amazonaws.com/production'
