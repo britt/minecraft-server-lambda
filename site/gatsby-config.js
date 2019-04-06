@@ -1,4 +1,5 @@
 module.exports = {
+  pathPrefix: 'mc_control',
   siteMetadata: {
     title: `Minecraft Server Control`,
     description: `Start and stop your Minecraft server.`,
